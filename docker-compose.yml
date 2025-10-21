@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   Intelligent-Literature-Review:
-    build: .
+    image: ghcr.io/zhy0504/intelligent-literature-review-web:latest
     container_name: Intelligent-Literature-Review
     ports:
       - "5000:5000"
