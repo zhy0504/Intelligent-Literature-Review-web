@@ -582,7 +582,7 @@ HTML_TEMPLATE = """
 
         function connect() {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}/ws`;
+            const wsUrl = `${protocol}//${window.location.hostname}:8889/ws`;
 
             ws = new WebSocket(wsUrl);
 
