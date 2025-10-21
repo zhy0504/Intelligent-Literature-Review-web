@@ -32,7 +32,7 @@ class AuthManager:
         self.username = username
         self.password = password
         self.active_sessions: Dict[str, Dict] = {}  # session_id -> {created_at, last_activity}
-        self.session_timeout = 3600  # 1小时超时
+        self.session_timeout = None  # 永久不超时
 
     def hash_password(self, password: str) -> str:
         """密码哈希"""
@@ -65,7 +65,7 @@ class AuthManager:
 
         # 检查会话是否超时
         session = self.active_sessions[session_id]
-        if time.time() - session['last_activity'] > self.session_timeout:
+        if self.session_timeout and time.time() - session['last_activity'] > self.session_timeout:
             del self.active_sessions[session_id]
             return False
 
@@ -83,7 +83,7 @@ class AuthManager:
         current_time = time.time()
         expired_sessions = [
             sid for sid, session in self.active_sessions.items()
-            if current_time - session['last_activity'] > self.session_timeout
+            if self.session_timeout and current_time - session['last_activity'] > self.session_timeout
         ]
         for sid in expired_sessions:
             del self.active_sessions[sid]
