@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  Intelligent-Literature-Review:
+    build: .
+    container_name: Intelligent-Literature-Review
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./cache:/app/cache
+      - ./pubmed_cache:/app/pubmed_cache
+      - ./ai_config.yaml:/app/ai_config.yaml
+      - ./prompts:/app/prompts
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - TZ=Asia/Shanghai
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    networks:
+      - literature-net
+
+networks:
+  literature-net:
+    driver: bridge
