@@ -426,14 +426,14 @@ HTML_TEMPLATE = """
             margin: 0;
             padding: 20px;
             font-family: 'Courier New', monospace;
-            background-color: #000;
-            color: #00ff00;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
         }
         .auth-container {
             max-width: 400px;
             margin: 50px auto;
             padding: 20px;
-            border: 1px solid #00ff00;
+            border: 1px solid #569cd6;
             border-radius: 5px;
         }
         .auth-container h2 {
@@ -449,9 +449,9 @@ HTML_TEMPLATE = """
         }
         .form-group input {
             width: 100%;
-            background-color: #000;
-            border: 1px solid #00ff00;
-            color: #00ff00;
+            background-color: #2d2d30;
+            border: 1px solid #569cd6;
+            color: #d4d4d4;
             padding: 10px;
             font-family: 'Courier New', monospace;
             font-size: 14px;
@@ -459,8 +459,8 @@ HTML_TEMPLATE = """
         }
         .auth-button {
             width: 100%;
-            background-color: #00ff00;
-            color: #000;
+            background-color: #0e639c;
+            color: #ffffff;
             border: none;
             padding: 10px 20px;
             cursor: pointer;
@@ -468,7 +468,7 @@ HTML_TEMPLATE = """
             font-size: 16px;
         }
         .auth-button:hover {
-            background-color: #00cc00;
+            background-color: #1177bb;
         }
         .auth-button:disabled {
             background-color: #666;
@@ -486,7 +486,7 @@ HTML_TEMPLATE = """
             width: 100%;
             height: 70vh;
             background-color: #000;
-            border: 1px solid #00ff00;
+            border: 1px solid #569cd6;
             padding: 10px;
             overflow-y: auto;
             white-space: pre-wrap;
@@ -496,9 +496,9 @@ HTML_TEMPLATE = """
         }
         #input {
             width: 100%;
-            background-color: #000;
-            border: 1px solid #00ff00;
-            color: #00ff00;
+            background-color: #2d2d30;
+            border: 1px solid #569cd6;
+            color: #d4d4d4;
             padding: 10px;
             font-family: 'Courier New', monospace;
             font-size: 14px;
@@ -509,8 +509,8 @@ HTML_TEMPLATE = """
             margin-bottom: 10px;
         }
         button {
-            background-color: #00ff00;
-            color: #000;
+            background-color: #0e639c;
+            color: #ffffff;
             border: none;
             padding: 10px 20px;
             margin-right: 10px;
@@ -518,7 +518,7 @@ HTML_TEMPLATE = """
             font-weight: bold;
         }
         button:hover {
-            background-color: #00cc00;
+            background-color: #1177bb;
         }
         button:disabled {
             background-color: #666;
