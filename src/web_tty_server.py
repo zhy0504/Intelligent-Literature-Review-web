@@ -831,10 +831,10 @@ async def main():
 
         runner = web.AppRunner(app)
         await runner.setup()
-        site = web.TCPSite(runner, args.host, args.port)
+        site = web.TCPSite(runner, args.host, args.port + 1)
         await site.start()
 
-        logger.info(f"📄 HTML页面服务已启动: http://{args.host}:{args.port}")
+        logger.info(f"📄 HTML页面服务已启动: http://{args.host}:{args.port + 1}")
 
     try:
         # 保持服务器运行
