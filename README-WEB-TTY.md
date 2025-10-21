@@ -56,20 +56,20 @@ docker-compose up -d
 docker exec -it Intelligent-Literature-Review bash
 
 # 启动Web TTY服务器（使用默认认证）
-python src/web_tty_server.py --serve-html --host 0.0.0.0 --port 8080
+python src/web_tty_server.py --serve-html --host 0.0.0.0 --port 8888
 
 # 或指定用户名密码
-python src/web_tty_server.py --serve-html --host 0.0.0.0 --port 8080 --username admin --password your_password
+python src/web_tty_server.py --serve-html --host 0.0.0.0 --port 8888 --username admin --password your_password
 
 # 或禁用认证（仅限开发环境！）
-python src/web_tty_server.py --serve-html --host 0.0.0.0 --port 8080 --disable-auth
+python src/web_tty_server.py --serve-html --host 0.0.0.0 --port 8888 --disable-auth
 ```
 
 ## 使用方法
 
 1. **启动服务后，在浏览器中访问**:
    ```
-   http://localhost:8080
+   http://localhost:8888
    ```
 
 2. **认证登录**:
@@ -127,7 +127,7 @@ python src/web_tty_server.py --help
 ```
 
 - `--host`: 服务器地址 (默认: 0.0.0.0)
-- `--port`: 服务器端口 (默认: 8080)
+- `--port`: 服务器端口 (默认: 8888)
 - `--serve-html`: 同时提供HTML页面
 - `--disable-auth`: 禁用认证 (仅限开发环境!)
 - `--username`: 认证用户名 (默认从环境变量读取)
@@ -138,7 +138,7 @@ python src/web_tty_server.py --help
 - `WEB_TTY_PASSWORD`: Web TTY密码 (默认: password，请修改!)
 
 ### Docker配置
-- **端口映射**: 8080:8080
+- **端口映射**: 8888:8888
 - **环境变量**:
   - `WEB_TTY=true`: 启用Web TTY模式
   - `WEB_TTY_USERNAME=admin`: 用户名
@@ -193,7 +193,7 @@ docker logs Intelligent-Literature-Review
 docker exec -it Intelligent-Literature-Review bash
 
 # 测试WebSocket连接
-wscat -c ws://localhost:8080/ws
+wscat -c ws://localhost:8888/ws
 ```
 
 ## 高级用法
@@ -216,7 +216,7 @@ ws.send(JSON.stringify({
 from web_tty_server import WebTTYServer
 
 # 创建服务器
-server = WebTTYServer(host='0.0.0.0', port=8080)
+server = WebTTYServer(host='0.0.0.0', port=8888)
 
 # 启动服务器
 await server.start_server()

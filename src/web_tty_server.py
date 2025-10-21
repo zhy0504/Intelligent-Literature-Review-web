@@ -91,7 +91,7 @@ class AuthManager:
 class WebTTYServer:
     """Web TTY服务器"""
 
-    def __init__(self, host='0.0.0.0', port=8080, enable_auth: bool = True,
+    def __init__(self, host='0.0.0.0', port=8888, enable_auth: bool = True,
                  username: str = "admin", password: str = "password"):
         self.host = host
         self.port = port
@@ -794,7 +794,7 @@ async def main():
 
     parser = argparse.ArgumentParser(description="Web TTY服务器 - 老王出品")
     parser.add_argument('--host', default='0.0.0.0', help='服务器地址')
-    parser.add_argument('--port', type=int, default=8080, help='服务器端口')
+    parser.add_argument('--port', type=int, default=8888, help='服务器端口')
     parser.add_argument('--serve-html', action='store_true', help='同时提供HTML页面')
     parser.add_argument('--disable-auth', action='store_true', help='禁用认证（不安全）')
     parser.add_argument('--username', default=None, help='认证用户名（默认从环境变量读取）')
