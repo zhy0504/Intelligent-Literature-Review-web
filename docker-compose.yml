@@ -5,7 +5,8 @@ services:
     image: ghcr.io/zhy0504/intelligent-literature-review:latest
     container_name: Intelligent-Literature-Review
     ports:
-      - "8889:8889"  # Web TTY端口
+      - "8889:8889"  # WebSocket端口
+      - "8890:8890"  # HTTP页面端口
     volumes:
       - ./data:/app/data
       - ./logs:/app/logs
