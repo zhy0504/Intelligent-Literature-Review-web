@@ -163,6 +163,32 @@ def start_main_app():
         print_status(f"启动主应用失败: {e}", "ERROR")
         return False
 
+def start_main_app_background():
+    """后台启动主应用（用于并行模式）"""
+    try:
+        print_status("📚 文献系统后台服务启动中...", "INFO")
+
+        # 配置检查
+        if not check_config_files():
+            print_status("配置检查失败，文献系统无法启动", "ERROR")
+            return
+
+        base_dir = get_base_dir()
+        cmd = [sys.executable, str(base_dir / "src" / "intelligent_literature_system.py")]
+
+        print_status(f"后台执行: {' '.join(cmd)}", "INFO")
+
+        # 后台运行，不阻塞
+        import subprocess
+        process = subprocess.Popen(cmd, cwd=str(base_dir))
+        print_status("✅ 文献系统后台服务已启动", "SUCCESS")
+
+        # 等待进程结束
+        process.wait()
+
+    except Exception as e:
+        print_status(f"后台启动文献系统失败: {e}", "ERROR")
+
 def main():
     """主函数"""
     print_status("🐳 Docker环境启动脚本", "INFO")
@@ -172,13 +198,22 @@ def main():
     web_tty_mode = os.getenv('WEB_TTY', '').lower() == 'true'
 
     if web_tty_mode:
-        print_status("启动模式: Web TTY", "INFO")
+        print_status("启动模式: Web TTY + 文献系统并行", "INFO")
 
         # 基础检查
         if not check_dependencies():
             print_status("依赖检查失败，但继续启动", "WARNING")
 
-        # 启动Web TTY
+        # 并行启动：Web TTY和文献系统
+        import threading
+
+        # 启动文献系统作为后台线程
+        print_status("🚀 后台启动文献系统...", "INFO")
+        literature_thread = threading.Thread(target=start_main_app_background, daemon=True)
+        literature_thread.start()
+
+        # 主线程启动Web TTY（阻塞）
+        print_status("🌐 前台启动Web TTY...", "INFO")
         start_web_tty()
     else:
         print_status("启动模式: 主应用", "INFO")
