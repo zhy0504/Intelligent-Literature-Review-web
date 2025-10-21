@@ -850,9 +850,9 @@ def start_web_tty():
                 return False
 
         print_status("🌐 启动Web TTY服务器...", "INFO")
-        print_status("📱 访问地址: http://localhost:8888", "INFO")
-        print_status("🔌 WebSocket地址: ws://localhost:8888/ws", "INFO")
-        print_status("💡 提示: 在浏览器中打开 http://localhost:8888 即可使用", "INFO")
+        print_status("📱 访问地址: http://localhost:8889", "INFO")
+        print_status("🔌 WebSocket地址: ws://localhost:8889/ws", "INFO")
+        print_status("💡 提示: 在浏览器中打开 http://localhost:8889 即可使用", "INFO")
         print_status("🔐 认证已启用，需要用户名和密码", "INFO")
         print_status("⚠️  注意: 不要在公网暴露此端口！", "WARNING")
 
@@ -871,7 +871,7 @@ def start_web_tty():
             str(base_dir / "src" / "web_tty_server.py"),
             "--serve-html",
             "--host", "0.0.0.0",
-            "--port", "8888",
+            "--port", "8889",
             "--username", username,
             "--password", password
         ]

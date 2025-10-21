@@ -26,4 +26,4 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
 # 默认启动主程序，可通过环境变量切换
-CMD ["sh", "-c", "if [ \"$WEB_TTY\" = \"true\" ]; then python src/web_tty_server.py --serve-html --host 0.0.0.0 --port 8888; else python src/start.py start; fi"]
+CMD ["sh", "-c", "if [ \"$WEB_TTY\" = \"true\" ]; then python src/web_tty_server.py --serve-html --host 0.0.0.0 --port 8889; else python src/start.py start; fi"]
