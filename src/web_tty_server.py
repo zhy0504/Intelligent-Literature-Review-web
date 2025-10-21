@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-轻量级Web TTY服务器 - 老王出品，简单粗暴好用
+文献综述系统控制台 - zhy出品
 提供浏览器直接连接容器终端的功能
 支持简单的用户名密码认证
 """
@@ -419,7 +419,7 @@ HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Web TTY - 老王出品</title>
+    <title>文献综述系统控制台 - zhy出品</title>
     <meta charset="utf-8">
     <style>
         body {
@@ -551,7 +551,7 @@ HTML_TEMPLATE = """
 
     <!-- 终端界面 -->
     <div id="terminalContainer" class="terminal-container">
-        <h1>🖥️ Web TTY - 老王出品</h1>
+        <h1>📚 文献综述系统控制台 - zhy出品</h1>
         <div class="status" id="status">状态: 未连接</div>
         <div class="controls">
             <button onclick="startShell()" id="startShellBtn" disabled>启动Shell</button>
@@ -787,7 +787,7 @@ async def main():
     """主函数"""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Web TTY服务器 - 老王出品")
+    parser = argparse.ArgumentParser(description="文献综述系统控制台 - zhy出品")
     parser.add_argument('--host', default='0.0.0.0', help='服务器地址')
     parser.add_argument('--port', type=int, default=8889, help='服务器端口')
     parser.add_argument('--serve-html', action='store_true', help='同时提供HTML页面')
