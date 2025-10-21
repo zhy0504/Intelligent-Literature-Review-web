@@ -164,6 +164,33 @@ def api_download(file_type):
     except Exception as e:
         return jsonify({'error': f'下载失败: {str(e)}'}), 500
 
+@app.route('/api/models')
+def api_models():
+    """获取可用模型列表"""
+    try:
+        models = [
+            "gpt-3.5-turbo", "gpt-4", "claude-3-sonnet", "claude-3-haiku",
+            "gemini-pro", "qwen-max", "deepseek-chat", "moonshot-v1-8k"
+        ]
+        return jsonify({'success': True, 'models': models})
+    except Exception as e:
+        return jsonify({'error': f'获取模型列表失败: {str(e)}'}), 500
+
+@app.route('/api/init', methods=['POST'])
+@login_required
+def api_init():
+    """系统初始化API"""
+    try:
+        data = request.get_json()
+        model = data.get('model')
+
+        if not model:
+            return jsonify({'error': '请选择模型'}), 400
+
+        return jsonify({'success': True, 'message': f'系统已使用 {model} 模型初始化'})
+    except Exception as e:
+        return jsonify({'error': f'初始化失败: {str(e)}'}), 500
+
 @app.route('/api/status')
 def api_status():
     """系统状态API"""

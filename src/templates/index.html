@@ -45,6 +45,28 @@
             <p>基于AI的医学文献自动化处理平台</p>
         </div>
 
+        <!-- 系统配置 -->
+        <div id="config-panel" class="card">
+            <h3>⚙️ 系统配置</h3>
+            <div class="form-group">
+                <label for="model-select">AI模型选择</label>
+                <select id="model-select" class="form-control">
+                    <option value="">请选择模型...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="max-results">最大检索文献数</label>
+                <input type="number" id="max-results" class="form-control" value="50" min="1" max="500">
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="auto-continue" checked> 自动继续生成大纲和综述
+                </label>
+            </div>
+            <button class="btn btn-primary" onclick="initializeSystem()">初始化系统</button>
+            <div id="init-status" class="hidden"></div>
+        </div>
+
         <div class="tabs">
             <div class="tab active" onclick="showTab('search')">📚 文献检索</div>
             <div class="tab" onclick="showTab('outline')">📋 大纲生成</div>
@@ -118,6 +140,71 @@
         let currentPapers = [];
         let currentOutline = '';
         let currentTopic = '';
+        let systemInitialized = false;
+
+        // 页面加载时获取模型列表
+        document.addEventListener('DOMContentLoaded', function() {
+            loadModels();
+        });
+
+        async function loadModels() {
+            try {
+                const response = await fetch('/api/models');
+                const result = await response.json();
+
+                const select = document.getElementById('model-select');
+                select.innerHTML = '<option value="">请选择模型...</option>';
+
+                if (result.success && result.models) {
+                    result.models.forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model;
+                        option.textContent = model;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('加载模型列表失败:', error);
+            }
+        }
+
+        async function initializeSystem() {
+            const modelSelect = document.getElementById('model-select');
+            const selectedModel = modelSelect.value;
+
+            if (!selectedModel) {
+                alert('请先选择AI模型');
+                return;
+            }
+
+            const statusDiv = document.getElementById('init-status');
+            statusDiv.className = 'status';
+            statusDiv.textContent = '正在初始化系统...';
+            statusDiv.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/init', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ model: selectedModel })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '系统初始化成功！';
+                    systemInitialized = true;
+                    document.getElementById('config-panel').style.display = 'none';
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.textContent = '初始化失败: ' + result.error;
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = '初始化失败: ' + error.message;
+            }
+        }
 
         function showTab(tabName) {
             // 隐藏所有标签页
@@ -140,6 +227,9 @@
                 return;
             }
 
+            const maxResults = document.getElementById('max-results').value || 50;
+            const autoContinue = document.getElementById('auto-continue').checked;
+
             currentTopic = query;
             showProgress('search-progress');
 
@@ -147,7 +237,11 @@
                 const response = await fetch('/api/search', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query })
+                    body: JSON.stringify({
+                        query,
+                        max_results: parseInt(maxResults),
+                        auto_continue: autoContinue
+                    })
                 });
 
                 const result = await response.json();
