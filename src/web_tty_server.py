@@ -555,9 +555,7 @@ HTML_TEMPLATE = """
         <div class="status" id="status">状态: 未连接</div>
         <div class="controls">
             <button onclick="startShell()" id="startShellBtn" disabled>启动Shell</button>
-            <button onclick="disconnect()">断开连接</button>
             <button onclick="clearTerminal()">清屏</button>
-            <button onclick="logout()" id="logoutBtn">退出登录</button>
         </div>
         <div id="terminal"></div>
         <input type="text" id="input" placeholder="输入命令..." disabled>
@@ -685,33 +683,12 @@ HTML_TEMPLATE = """
             }
         }
 
-        function logout() {
-            isAuthenticated = false;
-            sessionId = null;
-            shellActive = false;
-            showAuth();
-
-            // 清空表单
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-
-            // 禁用输入
-            document.getElementById('input').disabled = true;
-            document.getElementById('startShellBtn').disabled = true;
-        }
-
         function startShell() {
             if (ws && ws.readyState === WebSocket.OPEN && isAuthenticated) {
                 ws.send(JSON.stringify({
                     type: 'start_shell',
                     shell: '/bin/bash'
                 }));
-            }
-        }
-
-        function disconnect() {
-            if (ws) {
-                ws.close();
             }
         }
 
