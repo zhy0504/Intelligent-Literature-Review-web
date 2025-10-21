@@ -1451,11 +1451,20 @@ class IntelligentLiteratureSystem:
             
             if success:
                 # 确保综述文章文件存在
-                full_path = os.path.join("综述文章", output_file)
+                full_path = os.path.join("output", "综述文章", output_file)
                 if os.path.exists(full_path):
                     print(f"综述文章生成完成: {full_path}")
                 else:
                     print("主方法生成完成但未找到文件")
+                    print(f"检查路径: {full_path}")
+                    # 尝试查找可能的文件
+                    if os.path.exists("output"):
+                        print("output目录内容:")
+                        for f in os.listdir("output"):
+                            if "综述文章" in f:
+                                print(f"  找到: {f}")
+                    else:
+                        print("output目录不存在")
             else:
                 return {"success": False, "error": "综述文章生成失败"}
             
