@@ -109,6 +109,11 @@ class WebTTYServer:
 
     async def handle_websocket(self, websocket, path):
         """处理WebSocket连接"""
+        # 验证WebSocket路径
+        if path != "/ws":
+            await websocket.close(code=1008, reason="Invalid path")
+            return
+
         client_id = str(uuid.uuid4())
         self.connections[client_id] = websocket
         logger.info(f"🔌 新的TTY连接: {client_id} from {websocket.remote_address}")
@@ -383,8 +388,7 @@ class WebTTYServer:
         server = await websockets.serve(
             self.handle_websocket,
             self.host,
-            self.port,
-            path="/ws"
+            self.port
         )
 
         # 启动会话清理任务
