@@ -216,11 +216,72 @@ async def init_system():
         print(f"❌ 系统初始化失败: {e}")
         return False
 
+def check_and_init_data():
+    """老王我添加的数据检查和初始化函数"""
+    print("🔍 老王我正在检查数据文件...")
+
+    data_dir = Path("/app/data")
+    prompts_dir = Path("/app/prompts")
+    original_data_dir = Path("/app/original_data")
+    original_prompts_dir = Path("/app/original_prompts")
+
+    data_files = ["jcr.csv", "zky.csv", "processed_jcr_data.csv", "processed_zky_data.csv"]
+
+    # 检查data文件
+    missing_data = []
+    for file in data_files:
+        if not (data_dir / file).exists():
+            missing_data.append(file)
+
+    # 如果有缺失文件，尝试从原始数据恢复
+    if missing_data and original_data_dir.exists():
+        print(f"🔄 发现缺失数据文件: {missing_data}")
+        print("📦 老王我正在从原始数据恢复...")
+
+        for file in missing_data:
+            src_file = original_data_dir / file
+            dst_file = data_dir / file
+            if src_file.exists():
+                dst_file.parent.mkdir(parents=True, exist_ok=True)
+                import shutil
+                shutil.copy2(src_file, dst_file)
+                print(f"✅ 恢复文件: {file}")
+            else:
+                print(f"⚠️  原始数据中也没有: {file}")
+
+    # 检查prompts配置
+    if not (prompts_dir / "prompts_config.yaml").exists() and original_prompts_dir.exists():
+        prompts_src = original_prompts_dir / "prompts_config.yaml"
+        if prompts_src.exists():
+            prompts_dir.mkdir(parents=True, exist_ok=True)
+            import shutil
+            shutil.copy2(prompts_src, prompts_dir / "prompts_config.yaml")
+            print("✅ 恢复prompts配置文件")
+
+    # 最终验证
+    print("🔍 最终数据检查:")
+    for file in data_files:
+        file_path = data_dir / file
+        if file_path.exists():
+            size = file_path.stat().st_size
+            print(f"✅ {file}: {size:,} bytes")
+        else:
+            print(f"❌ {file}: 文件不存在")
+
+    prompts_file = prompts_dir / "prompts_config.yaml"
+    if prompts_file.exists():
+        print(f"✅ prompts_config.yaml: {prompts_file.stat().st_size:,} bytes")
+    else:
+        print("❌ prompts_config.yaml: 文件不存在")
+
 if __name__ == '__main__':
     # 创建必要目录
     os.makedirs('templates', exist_ok=True)
     os.makedirs('static', exist_ok=True)
     os.makedirs('output', exist_ok=True)
+
+    # 老王我添加的数据检查
+    check_and_init_data()
 
     # 初始化系统
     if asyncio.run(init_system()):
