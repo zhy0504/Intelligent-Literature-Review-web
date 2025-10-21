@@ -277,7 +277,7 @@ class PandocExporter:
 class MedicalReviewGenerator:
     """医学综述文章生成器 - 简化版本"""
     
-    def __init__(self, config_name: str = None, output_dir: str = "综述文章"):
+    def __init__(self, config_name: str = None, output_dir: str = None):
         """
         初始化综述生成器
         
@@ -288,7 +288,7 @@ class MedicalReviewGenerator:
         self.config_manager = ConfigManager()
         self.ai_client = AIClient()
         self.config_name = config_name
-        self.output_dir = output_dir
+        self.output_dir = output_dir or os.path.join("output", "综述文章")
         self.model_id = None
         self.model_parameters = {
             "temperature": 0.3,  # 较低的温度保证专业性和一致性
@@ -940,7 +940,7 @@ class MedicalReviewGenerator:
         try:
             # 获取项目根目录
             project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            raw_docs_dir = os.path.join(project_root, "综述AI返回原始数据（用于核对）")
+            raw_docs_dir = os.path.join(project_root, "output", "综述AI返回原始数据（用于核对）")
             
             # 确保原始文档目录存在
             os.makedirs(raw_docs_dir, exist_ok=True)
@@ -1107,7 +1107,7 @@ def main():
     parser.add_argument("--title", "-t", help="文章标题")
     parser.add_argument("--output", help="输出文件名")
     parser.add_argument("--config", "-c", help="AI配置名称")
-    parser.add_argument("--output-dir", "-d", default="综述文章", help="输出目录")
+    parser.add_argument("--output-dir", "-d", default=os.path.join("output", "综述文章"), help="输出目录")
     parser.add_argument("--user-input", "-u", help="用户输入信息，用于生成文件名")
     
     args = parser.parse_args()

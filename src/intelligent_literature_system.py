@@ -1529,7 +1529,7 @@ class IntelligentLiteratureSystem:
             from datetime import datetime
             
             # 创建综述大纲目录
-            outline_dir = "综述大纲"
+            outline_dir = os.path.join("output", "综述大纲")
             os.makedirs(outline_dir, exist_ok=True)
             
             # 清理用户输入内容用于文件名
@@ -1599,7 +1599,7 @@ class IntelligentLiteratureSystem:
             return
             
         # 确保输出目录存在
-        output_dir = "文献检索结果"
+        output_dir = os.path.join("output", "文献检索结果")
         os.makedirs(output_dir, exist_ok=True)
         
         # 生成文件名：文献列表-用户输入内容-时间戳

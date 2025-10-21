@@ -12,6 +12,7 @@ services:
       - ./logs:/app/logs
       - ./cache:/app/cache
       - ./pubmed_cache:/app/pubmed_cache
+      - ./output:/app/output
       - ./ai_config.yaml:/app/ai_config.yaml
       - ./prompts:/app/prompts
     environment:
