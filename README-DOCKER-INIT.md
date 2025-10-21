@@ -23,7 +23,7 @@ docker-compose up -d
 
 ### 方案2：应用启动时检查
 
-Web应用启动时会自动检查数据文件，如果缺失会从镜像原始数据恢复。
+主程序启动时会自动检查数据文件，如果缺失会从镜像原始数据恢复。
 
 **特点：**
 - 无需额外配置
@@ -47,7 +47,7 @@ docker-compose restart
 
 - `init-data.sh` - Docker入口初始化脚本
 - `Dockerfile` - 修改后支持数据备份
-- `src/web_app.py` - 添加了启动时数据检查
+- `src/start.py` - 添加了启动时数据检查
 - `docker-compose.yml` - volume挂载配置
 
 ## 数据流程

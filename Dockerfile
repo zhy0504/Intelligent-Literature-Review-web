@@ -25,4 +25,5 @@ RUN chmod +x /docker-entrypoint-init.d/init-data.sh
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
-CMD ["python", "src/web_app.py"]
+# 默认启动主程序，可通过环境变量切换
+CMD ["sh", "-c", "if [ \"$WEB_TTY\" = \"true\" ]; then python src/web_tty_server.py --serve-html --host 0.0.0.0 --port 8080; else python src/start.py start; fi"]

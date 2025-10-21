@@ -3,7 +3,7 @@ version: '3.8'
 services:
   Intelligent-Literature-Review:
     image: ghcr.io/zhy0504/intelligent-literature-review:latest
-    container_name: Intelligent-Literature-Review
+    container_name: Intelligent-Literature-Review-TTY
     ports:
       - "8080:8080"  # Web TTY端口
     volumes:
@@ -17,6 +17,10 @@ services:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
       - TZ=Asia/Shanghai
+      - WEB_TTY=true  # 启用Web TTY模式
+      # Web TTY认证配置
+      - WEB_TTY_USERNAME=admin  # Web TTY用户名
+      - WEB_TTY_PASSWORD=your_secure_password_here  # Web TTY密码，请修改！
     stdin_open: true
     tty: true
     restart: unless-stopped

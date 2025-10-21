@@ -782,7 +782,7 @@ def start_literature_system():
     """启动文献系统"""
     print_section_header("启动文献系统")
     print_status("系统将先分析您的检索需求，显示总文献数后让您决定获取数量", "INFO")
-    
+
     # 检查Pandoc状态
     pandoc_status = check_pandoc_status()
     if pandoc_status['status'] != '未安装':
@@ -794,13 +794,13 @@ def start_literature_system():
         else:
             print_status("Pandoc安装失败 - 仅支持Markdown格式", "WARNING")
             print_status("您可以手动安装Pandoc或稍后重试", "INFO")
-    
+
     try:
         base_dir, _, _, _ = get_venv_paths()
-        
+
         # 构建启动命令
         cmd = [sys.executable, str(base_dir / "src" / "intelligent_literature_system.py")]
-        
+
         # 如果有高级CLI，获取AI配置
         if HAS_ADVANCED_CLI:
             try:
@@ -812,14 +812,14 @@ def start_literature_system():
                     print_status(f"使用默认AI服务: {default_service}", "INFO")
             except Exception:
                 pass
-        
+
         print_status("启动系统...", "INFO")
         print_status(f"执行命令: {' '.join(cmd)}", "INFO")
-        
+
         # 运行命令
         result = subprocess.run(cmd, cwd=str(base_dir))
         return result.returncode == 0
-        
+
     except KeyboardInterrupt:
         print_status("用户取消", "WARNING")
         return False
@@ -828,13 +828,76 @@ def start_literature_system():
         return False
 
 
+def start_web_tty():
+    """启动Web TTY服务器"""
+    print_section_header("启动Web TTY服务器")
+
+    try:
+        base_dir, _, _, _ = get_venv_paths()
+
+        # 检查websockets依赖
+        try:
+            import websockets
+            print_status("websockets依赖检查通过", "OK")
+        except ImportError:
+            print_status("websockets未安装，正在安装...", "WARNING")
+            install_cmd = [sys.executable, "-m", "pip", "install", "websockets>=11.0.0"]
+            result = subprocess.run(install_cmd, capture_output=True, text=True)
+            if result.returncode == 0:
+                print_status("websockets安装成功", "SUCCESS")
+            else:
+                print_status(f"websockets安装失败: {result.stderr}", "ERROR")
+                return False
+
+        print_status("🌐 启动Web TTY服务器...", "INFO")
+        print_status("📱 访问地址: http://localhost:8080", "INFO")
+        print_status("🔌 WebSocket地址: ws://localhost:8080/ws", "INFO")
+        print_status("💡 提示: 在浏览器中打开 http://localhost:8080 即可使用", "INFO")
+        print_status("🔐 认证已启用，需要用户名和密码", "INFO")
+        print_status("⚠️  注意: 不要在公网暴露此端口！", "WARNING")
+
+        # 读取认证配置
+        import os
+        username = os.getenv('WEB_TTY_USERNAME', 'admin')
+        password = os.getenv('WEB_TTY_PASSWORD', 'password')
+
+        print_status(f"👤 用户名: {username}", "INFO")
+        if password == 'password':
+            print_status("⚠️  警告: 使用默认密码，建议修改!", "WARNING")
+
+        # 构建启动命令
+        cmd = [
+            sys.executable,
+            str(base_dir / "src" / "web_tty_server.py"),
+            "--serve-html",
+            "--host", "0.0.0.0",
+            "--port", "8080",
+            "--username", username,
+            "--password", password
+        ]
+
+        print_status(f"执行命令: {' '.join(cmd)}", "INFO")
+
+        # 运行命令
+        result = subprocess.run(cmd, cwd=str(base_dir))
+        return result.returncode == 0
+
+    except KeyboardInterrupt:
+        print_status("用户取消", "WARNING")
+        return False
+    except Exception as e:
+        print_status(f"Web TTY启动失败: {e}", "ERROR")
+        return False
+
+
 def show_quick_menu():
     """显示快速菜单"""
     print_section_header("智能文献系统快速启动")
     print("1. 系统状态检查")
-    print("2. 启动文献系统") 
+    print("2. 启动文献系统")
     print("3. 高级管理" + ("" if HAS_ADVANCED_CLI else " (不可用)"))
-    print("4. 帮助文档")
+    print("4. 启动Web TTY服务器")
+    print("5. 帮助文档")
     print("0. 退出")
     print("=" * 60)
 
@@ -1085,10 +1148,16 @@ def main():
                 cli.run()
             else:
                 print_status("高级管理功能不可用，缺少 advanced_cli 模块", "ERROR")
-        
+
         elif choice == "4":
+            if start_web_tty():
+                print_status("Web TTY服务器启动成功", "SUCCESS")
+            else:
+                print_status("Web TTY服务器启动失败", "ERROR")
+
+        elif choice == "5":
             show_help()
-        
+
         elif choice == "0":
             print_status("感谢使用智能文献系统!", "INFO")
             break
