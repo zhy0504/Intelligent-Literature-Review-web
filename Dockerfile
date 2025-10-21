@@ -30,6 +30,10 @@ COPY . .
 # 创建目录
 RUN mkdir -p /app/original_data /app/original_prompts /app/logs /app/cache /app/pubmed_cache /app/output
 
+# 创建简化启动命令
+RUN ln -s /app/src/intelligent_literature_system.py /usr/local/bin/zhy && \
+    chmod +x /usr/local/bin/zhy
+
 # 备份原始数据
 RUN if [ -d "/app/data" ]; then cp -r /app/data/* /app/original_data/ || true; fi
 RUN if [ -f "/app/prompts/prompts_config.yaml" ]; then cp /app/prompts/prompts_config.yaml /app/original_prompts/ || true; fi
