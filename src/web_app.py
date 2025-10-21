@@ -9,19 +9,28 @@ import os
 import sys
 import json
 import asyncio
+import uuid
+import threading
+import time
+import logging
 from datetime import datetime
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify, send_file, session, redirect, url_for
 from werkzeug.utils import secure_filename
 from functools import wraps
+from flask_socketio import SocketIO, emit
 
 # 导入核心模块
 from intelligent_literature_system import IntelligentLiteratureSystem
+from terminal_service import terminal_manager
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'intelligent-literature-review-2024'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+
+# 初始化SocketIO
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
 # 认证配置
 AUTH_USER = os.getenv('AUTH_USER', 'admin')
@@ -29,6 +38,9 @@ AUTH_PASSWORD = os.getenv('AUTH_PASSWORD', 'password')
 
 # 全局系统实例
 literature_system = None
+
+# 配置日志
+logging.basicConfig(level=logging.INFO)
 
 def login_required(f):
     @wraps(f)
@@ -59,6 +71,12 @@ def logout():
 def index():
     """主页面"""
     return render_template('index.html')
+
+@app.route('/terminal')
+@login_required
+def terminal():
+    """Web终端页面"""
+    return render_template('terminal.html')
 
 @app.route('/api/search', methods=['POST'])
 @login_required
@@ -274,6 +292,110 @@ def check_and_init_data():
     else:
         print("❌ prompts_config.yaml: 文件不存在")
 
+
+# ===== WebSocket事件处理 =====
+
+@socketio.on('connect')
+def handle_connect():
+    """WebSocket连接处理"""
+    logging.info(f"🔌 WebSocket客户端连接: {request.sid}")
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    """WebSocket断开处理"""
+    logging.info(f"🔌 WebSocket客户端断开: {request.sid}")
+
+@socketio.on('terminal_connect')
+def handle_terminal_connect():
+    """终端连接请求"""
+    try:
+        # 为客户端创建唯一的会话ID
+        session_id = str(uuid.uuid4())
+
+        # 创建终端会话
+        terminal_session = terminal_manager.create_session(session_id)
+
+        if terminal_session:
+            # 启动终端数据读取线程
+            def read_terminal():
+                while terminal_session.is_active():
+                    data = terminal_session.read(timeout=0.1)
+                    if data:
+                        socketio.emit('terminal_output', {
+                            'session_id': session_id,
+                            'data': data.decode('utf-8', errors='ignore')
+                        }, room=request.sid)
+                    time.sleep(0.01)  # 10ms间隔
+
+            thread = threading.Thread(target=read_terminal, daemon=True)
+            thread.start()
+
+            # 发送连接成功消息
+            socketio.emit('terminal_connected', {
+                'session_id': session_id,
+                'message': '终端连接成功！'
+            }, room=request.sid)
+
+            logging.info(f"🖥️ 终端会话创建成功: {session_id}")
+
+        else:
+            socketio.emit('terminal_error', {
+                'message': '终端创建失败，请检查系统权限'
+            }, room=request.sid)
+
+    except Exception as e:
+        logging.error(f"终端连接失败: {e}")
+        socketio.emit('terminal_error', {
+            'message': f'终端连接失败: {str(e)}'
+        }, room=request.sid)
+
+@socketio.on('terminal_input')
+def handle_terminal_input(data):
+    """终端输入处理"""
+    try:
+        session_id = data.get('session_id')
+        input_data = data.get('data', '')
+
+        if session_id:
+            terminal_session = terminal_manager.get_session(session_id)
+            if terminal_session:
+                # 处理特殊命令（如终端大小调整）
+                if data.get('resize'):
+                    cols = data['resize'].get('cols', 80)
+                    rows = data['resize'].get('rows', 24)
+                    terminal_session.resize(cols, rows)
+                    logging.debug(f"📐 终端大小调整: {cols}x{rows}")
+                else:
+                    # 发送输入到终端
+                    terminal_session.write(input_data.encode('utf-8'))
+            else:
+                socketio.emit('terminal_error', {
+                    'message': '终端会话已断开'
+                }, room=request.sid)
+        else:
+            socketio.emit('terminal_error', {
+                'message': '无效的会话ID'
+            }, room=request.sid)
+
+    except Exception as e:
+        logging.error(f"终端输入处理失败: {e}")
+        socketio.emit('terminal_error', {
+            'message': f'终端输入失败: {str(e)}'
+        }, room=request.sid)
+
+@socketio.on('terminal_disconnect')
+def handle_terminal_disconnect(data):
+    """终端断开请求"""
+    try:
+        session_id = data.get('session_id')
+        if session_id:
+            terminal_manager.remove_session(session_id)
+            logging.info(f"🖥️ 终端会话断开: {session_id}")
+
+    except Exception as e:
+        logging.error(f"终端断开处理失败: {e}")
+
+
 if __name__ == '__main__':
     # 创建必要目录
     os.makedirs('templates', exist_ok=True)
@@ -287,7 +409,9 @@ if __name__ == '__main__':
     if asyncio.run(init_system()):
         print("🌐 启动Web服务器...")
         print("📱 访问地址: http://localhost:5000")
-        app.run(host='0.0.0.0', port=5000, debug=True)
+        print("🖥️ 终端地址: http://localhost:5000/terminal")
+        # 使用SocketIO启动应用
+        socketio.run(app, host='0.0.0.0', port=5000, debug=False, allow_unsafe_werkzeug=True)
     else:
         print("❌ 系统初始化失败，无法启动Web服务")
         sys.exit(1)
