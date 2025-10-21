@@ -151,7 +151,7 @@ def start_main_app():
     base_dir = get_base_dir()
 
     try:
-        cmd = [sys.executable, str(base_dir / "src" / "main.py")]
+        cmd = [sys.executable, str(base_dir / "src" / "intelligent_literature_system.py")]
         print_status(f"执行命令: {' '.join(cmd)}", "INFO")
 
         # 直接执行，不返回
