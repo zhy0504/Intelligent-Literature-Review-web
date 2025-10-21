@@ -265,7 +265,7 @@ class WebTTYServer:
     async def send_input(self, client_id: str, data: str):
         """发送输入到shell"""
         process = self.shell_processes.get(client_id)
-        if not process or process.stdin:
+        if not process or not process.stdin:
             return
 
         try:
