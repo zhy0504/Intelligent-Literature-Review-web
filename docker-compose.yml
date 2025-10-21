@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   Intelligent-Literature-Review:
-    image: ghcr.io/zhy0504/intelligent-literature-review-web:latest
+    image: ghcr.io/zhy0504/intelligent-literature-review:latest
     container_name: Intelligent-Literature-Review
     ports:
       - "5000:5000"
@@ -17,6 +17,8 @@ services:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
       - TZ=Asia/Shanghai
+      - AUTH_USER=admin
+      - AUTH_PASSWORD=your_secure_password
     stdin_open: true
     tty: true
     restart: unless-stopped

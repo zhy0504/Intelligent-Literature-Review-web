@@ -11,8 +11,9 @@ import json
 import asyncio
 from datetime import datetime
 from pathlib import Path
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, session, redirect, url_for
 from werkzeug.utils import secure_filename
+from functools import wraps
 
 # 导入核心模块
 from intelligent_literature_system import IntelligentLiteratureSystem
@@ -22,15 +23,45 @@ app.config['SECRET_KEY'] = 'intelligent-literature-review-2024'
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
+# 认证配置
+AUTH_USER = os.getenv('AUTH_USER', 'admin')
+AUTH_PASSWORD = os.getenv('AUTH_PASSWORD', 'password')
+
 # 全局系统实例
 literature_system = None
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        if username == AUTH_USER and password == AUTH_PASSWORD:
+            session['logged_in'] = True
+            return redirect(url_for('index'))
+        return render_template('login.html', error='用户名或密码错误')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('logged_in', None)
+    return redirect(url_for('login'))
+
 @app.route('/')
+@login_required
 def index():
     """主页面"""
     return render_template('index.html')
 
 @app.route('/api/search', methods=['POST'])
+@login_required
 def api_search():
     """文献检索API"""
     try:
@@ -41,11 +72,11 @@ def api_search():
             return jsonify({'error': '请输入研究主题'}), 400
 
         # 异步执行检索
-        result = asyncio.run(literature_system.search_literature(query))
+        result = asyncio.run(literature_system.run_complete_workflow(query, max_results=50, target_articles=20, enable_resume=False))
 
         return jsonify({
             'success': True,
-            'message': f'检索到 {len(result.get("papers", []))} 篇文献',
+            'message': f'检索到 {result.get("filtered_count", 0)} 篇文献',
             'data': result
         })
 
