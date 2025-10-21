@@ -177,11 +177,12 @@ def api_status():
     except Exception as e:
         return jsonify({'error': f'状态获取失败: {str(e)}'}), 500
 
-def init_system():
+async def init_system():
     """初始化系统"""
     global literature_system
     try:
-        literature_system = IntelligentLiteratureSystem()
+        literature_system = IntelligentLiteratureSystem(interactive_mode=False)
+        await literature_system.initialize_components()
         print("✅ 系统初始化成功")
         return True
     except Exception as e:
@@ -195,7 +196,7 @@ if __name__ == '__main__':
     os.makedirs('output', exist_ok=True)
 
     # 初始化系统
-    if init_system():
+    if asyncio.run(init_system()):
         print("🌐 启动Web服务器...")
         print("📱 访问地址: http://localhost:5000")
         app.run(host='0.0.0.0', port=5000, debug=True)

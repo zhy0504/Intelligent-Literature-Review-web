@@ -47,7 +47,6 @@
 
         <div class="tabs">
             <div class="tab active" onclick="showTab('search')">📚 文献检索</div>
-            <div class="tab" onclick="showTab('filter')">🔍 智能筛选</div>
             <div class="tab" onclick="showTab('outline')">📋 大纲生成</div>
             <div class="tab" onclick="showTab('review')">📝 综述生成</div>
         </div>
@@ -76,27 +75,6 @@
             </div>
         </div>
 
-        <!-- 智能筛选 -->
-        <div id="filter-tab" class="tab-content">
-            <div class="card">
-                <h3>🔍 智能筛选</h3>
-                <div class="form-group">
-                    <label>影响因子阈值</label>
-                    <input type="number" id="impact-factor" class="form-control" value="2.0" step="0.1">
-                </div>
-                <div class="form-group">
-                    <label>发表年份</label>
-                    <select id="year-range" class="form-control">
-                        <option value="5">最近5年</option>
-                        <option value="10">最近10年</option>
-                        <option value="0">不限制</option>
-                    </select>
-                </div>
-                <button class="btn btn-primary" onclick="filterLiterature()">开始筛选</button>
-
-                <div id="filter-results" class="results hidden"></div>
-            </div>
-        </div>
 
         <!-- 大纲生成 -->
         <div id="outline-tab" class="tab-content">
@@ -138,7 +116,6 @@
 
     <script>
         let currentPapers = [];
-        let filteredPapers = [];
         let currentOutline = '';
         let currentTopic = '';
 
@@ -190,41 +167,8 @@
             }
         }
 
-        async function filterLiterature() {
-            if (currentPapers.length === 0) {
-                alert('请先进行文献检索');
-                return;
-            }
-
-            const config = {
-                impact_factor: parseFloat(document.getElementById('impact-factor').value),
-                year_range: parseInt(document.getElementById('year-range').value)
-            };
-
-            try {
-                const response = await fetch('/api/filter', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ papers: currentPapers, config })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    filteredPapers = result.data;
-                    displayPapers(filteredPapers, 'filter-results');
-                    document.getElementById('filter-results').classList.remove('hidden');
-                    showStatus('success', result.message);
-                } else {
-                    showStatus('error', result.error);
-                }
-            } catch (error) {
-                showStatus('error', '筛选失败: ' + error.message);
-            }
-        }
-
         async function generateOutline() {
-            const papers = filteredPapers.length > 0 ? filteredPapers : currentPapers;
+            const papers = currentPapers;
             if (papers.length === 0) {
                 alert('请先进行文献检索');
                 return;
@@ -253,7 +197,7 @@
         }
 
         async function generateReview() {
-            const papers = filteredPapers.length > 0 ? filteredPapers : currentPapers;
+            const papers = currentPapers;
             const outline = document.getElementById('outline-content').value || currentOutline;
 
             if (papers.length === 0) {
