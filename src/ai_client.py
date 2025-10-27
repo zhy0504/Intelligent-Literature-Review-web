@@ -437,26 +437,6 @@ class OpenAIAdapter(BaseAIAdapter):
             self._models_cache_time = current_time
             
             return models
-            try:
-                models_data = response.json()
-            except json.JSONDecodeError:
-                return self._get_default_models()
-            
-            models = []
-            
-            for model in models_data.get('data', []):
-                model_info = ModelInfo(
-                    id=model['id'],
-                    name=model.get('name', model['id']),
-                    description=f"Created: {model.get('created', 'Unknown')}",
-                    context_length=model.get('context_length', 4096),
-                    supports_streaming=True
-                )
-                models.append(model_info)
-            
-            # 按名称排序
-            models.sort(key=lambda x: x.name)
-            return models  # 直接返回实际获取到的模型列表
             
         except Exception as e:
             print(f"获取OpenAI模型列表失败: {e}")
