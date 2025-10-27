@@ -485,7 +485,8 @@ HTML_TEMPLATE = """
         #terminal {
             width: 100%;
             height: 70vh;
-            background-color: #000;
+            background-color: #fff;
+            color: #000;
             border: 1px solid #569cd6;
             padding: 10px;
             overflow-y: auto;
